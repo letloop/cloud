@@ -1,14 +1,16 @@
-# letloop.cloud · cloud for the parenthetical leaning doers
+# ➰ letloop.cloud ⛅
 
-➰ letloop.cloud ⛅ is an easy way, the easiest way, to publish web
-apps written with Scheme, or targeting Scheme.
+**A cloud for the parenthetical leaning doers**
+
+letloop.cloud is an easy way, the easiest way, to publish web apps
+written with Scheme, or targeting Scheme.
 
 ## Getting started
 
 Create a file called `mywebapp.scm`, and put the following inside it:
 
 ```scheme
-(library (counter)
+(library (mywebapp)
   (export hyper)
   (import (letloop v1))
 
@@ -68,6 +70,7 @@ You can now publish the application with:
 
       letloop.py mywebapp.scm
 
+#;>
 ```
 
 And that is all :)
