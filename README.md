@@ -18,14 +18,30 @@ Create a file called `mywebapp.scm`, and put the following inside it:
     (lambda (title name)
       `(html
         (head
+         (link (@ (href "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css")
+                  (rel "stylesheet")
+                  (integrity "sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD")
+                  (crossorigin "anonymous")))
+
          (title "Welcome to the loop!"))
+
         (body
-         (h1 "Hello " ,title " " ,name)
-         (p "I can say your name:")
-         (form (@ (method "POST"))
-               (p (input (@ (type "text") (name "title") (placeholder "title"))))
-               (p (input (@ (type "text") (name "name") (placeholder "name"))))
-               (p (input (@ (type "submit") (value "submit")))))))))
+         (div (@ (style "width: 777px; padding: 30px; margin: auto"))
+              (h1 "Hello " ,title " " ,name)
+              (img (@ (src "http://letloop.cloud/static/letloop.png")))
+              (p "I can say your name:")
+              (form (@ (method "POST"))
+                    (p (input (@ (class "form-control")
+                                 (type "text")
+                                 (name "title")
+                                 (placeholder "title"))))
+                    (p (input (@ (class "form-control")
+                                 (type "text")
+                                 (name "name")
+                                 (placeholder "name"))))
+                    (p (input (@ (class "btn btn-primary")
+                                 (type "submit")
+                                 (value "submit"))))))))))
 
   (define hyper
     (lambda (method uri version headers body)
@@ -38,9 +54,6 @@ Create a file called `mywebapp.scm`, and put the following inside it:
 
       (if (eq? method 'POST)
           (let ((body (www-form-urlencoded-read body)))
-            ;; after a POST, usually it needs a redirect, to limit
-            ;; double postings, but here since there is no session,
-            ;; reply 200...
             (values 200
                     "Ok"
                     '((content-type . "text/html"))
