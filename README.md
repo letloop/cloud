@@ -10,7 +10,7 @@ written with Scheme, or targeting Scheme.
 You will need `curl`, and `jq`:
 
 ```scheme
-#;> cat <<EOF >> example.scm
+;> cat <<EOF >> example.scm
 ;; https://letloop.cloud hello world
 (library (mywebapp)
   (export hyper)
@@ -42,14 +42,14 @@ EOF
 To deploy use the following:
 
 ```shell
-#;> curl -X PUT --data-binary @example.scm https://letloop.cloud/api/v1 | jq . | tee letloop.cloud.json
+;> curl -X PUT --data-binary @example.scm https://letloop.cloud/api/v1 | jq . | tee letloop.cloud.json
 ```
 
 The previous command will store information, including the secret used
 to update the page. You can use it like that:
 
 ```shell
-#;> curl -X POST --data-binary @example.scm $(cat letloop.cloud.json | jq -r '.[2]')
+;> curl -X POST --data-binary @example.scm $(cat letloop.cloud.json | jq -r '.[2]')
 ```
 
 Enjoy!
