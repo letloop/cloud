@@ -77,7 +77,7 @@ You can now publish the application with:
 ```shell
 #;> letloop.py mywebapp.scm
 
-➰ It is online at: http://9a6kmemqqhpmo.letloop.xyz
+➰ It is online at: https://9a498kflib7cn.letloop.xyz
 
 ➿ Spawning a new shell... Improve the code, push, and make it shine with the same command:
 
