@@ -1,3 +1,5 @@
+__pycache__
+*~
 *.ss~
 *.ss#*
 .#*.ss
@@ -5,3 +7,5 @@
 *.scm~
 *.scm#*
 .#*.scm
+
+letloop.cloud.json
