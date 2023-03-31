@@ -2,12 +2,18 @@
 import os
 import sys
 import requests
+from loguru import logger as log
 
 
 LETLOOP = os.environ.get('LETLOOP', 'https://letloop.cloud/').rstrip('/')
 
 
 def main():
+    log.remove()
+    if os.environ.get('LETLOOP_DEBUG'):
+        log.add(sys.stderr)
+        log.info('That is beautiful, and simple logging')
+
     match sys.argv[1:]:
         case [filename]:
             if not os.path.exists(filename):
@@ -18,18 +24,18 @@ def main():
             if not os.environ.get('LETLOOP_SUB'):
                 url = "{}/api/v1".format(LETLOOP)
                 try:
-                    response = requests.put(url, data=data)
+                    response = requests.post(url, data=data)
                 except Exception as exc:
                     print('Oops! Pebkac somewhere over the rainbow...')
                     exit(1)
                 if response.status_code != 201:
-                    print(url, response)
                     print('Oops! Pebkac somewhere over the rainbow...')
+                    log.error((response.url, response.status_code))
                     exit(2)
             else:
                 url = os.environ['LETLOOP_SECRET']
                 try:
-                    response = requests.post(url, data=data)
+                    response = requests.put(url, data=data)
                 except Exception as exc:
                     print('Oops! Pebkac somewhere over the rainbow...')
                     exit(3)

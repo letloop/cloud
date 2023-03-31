@@ -12,12 +12,12 @@ You will need `curl`, and `jq`:
 ```scheme
 ;> cat <<EOF >> example.scm
 ;; https://letloop.cloud hello world
-(library (example)
+(library (hello)
   (export hyper)
   (import (letloop v1))
 
   (define hyper
-    (lambda (method uri version headers body)
+    (lambda (method uri headers body)
       (values 200
               "Ok"
               '((content-type . "text/plain"))
