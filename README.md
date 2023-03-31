@@ -12,37 +12,23 @@ You will need `curl`, and `jq`:
 ```scheme
 ;> cat <<EOF >> example.scm
 ;; https://letloop.cloud hello world
-(library (mywebapp)
+(library (example)
   (export hyper)
   (import (letloop v1))
-
-  (define view
-    (lambda ()
-      '(html
-        (head
-         (link (@ (href "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css")
-                  (rel "stylesheet")
-                  (integrity "sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD")
-                  (crossorigin "anonymous")))
-
-         (title "Welcome to the loop!"))
-
-        (body
-         (h1 "Welcome to the loop!")))))
 
   (define hyper
     (lambda (method uri version headers body)
       (values 200
               "Ok"
-              '((content-type . "text/html"))
-              (view)))))
-EOF
+              '((content-type . "text/plain"))
+              "Héllo world!"))))
+;; EOF
 ```
 
 To deploy use the following:
 
 ```shell
-;> curl -X PUT --data-binary @example.scm https://letloop.cloud/api/v1 | jq . | tee letloop.cloud.json
+;> curl -T example.scm https://letloop.cloud/api/v1 | jq . | tee letloop.cloud.json
 ```
 
 The previous command will store information, including the secret used
@@ -68,66 +54,108 @@ See [letloop.py](https://pypi.org/project/letloop.py)
 
 ## Reference
 
+### Base
+
 The available procedures are a subset of
 [SRFI-172](https://srfi.schemers.org/srfi-172/), without set!, and
-without mutations:
+without mutations. If you are unsure about those, look at
+[scheme.rs/scheme/base](https://scheme.rs/scheme/base/#container):
 
 ```scheme
-define - * / + < <= = => > >= abs acos and angle append apply asin assoc
-assq assv atan begin boolean? boolean=? bytevector bytevector? bytevector-copy
-bytevector-length bytevector-u8-ref caaaar caaadr caaar caadar caaddr caadr
-caar cadaar cadadr cadar caddar cadddr caddr cadr call/cc call-with-current-continuation
-call-with-values car case case-lambda cdaaar cdaadr cdaar cdadar cdaddr cdadr
-cdar cddaar cddadr cddar cdddar cddddr cdddr cddr cdr ceiling char? char<?
-char<=? char=? char>? char>=? char->integer char-alphabetic? char-ci<?
-char-ci<=? char-ci=? char-ci>? char-ci>=? char-downcase char-foldcase
-char-lower-case? char-numeric? char-upcase char-upper-case? char-whitespace?
-complex? cond cons cos denominator do dynamic-wind else eof-object eof-object?
-eq? equal? eqv? error even? exact exact? exact-integer-sqrt exp expt finite?
-floor for-each gcd guard if imag-part inexact inexact? infinite? integer?
-integer->char lambda lcm length let let* let*-values letrec letrec* let-values
-list list? list->string  list-copy list-ref list-tail log magnitude make-bytevector
-make-list make-parameter make-polar make-rectangular make-string map max member
-memq memv min modulo nan? negative? not null? number? number->string numerator
-odd? or pair? parameterize positive? procedure? quasiquote quote quotient raise
-raise-continuable rational? rationalize real? real-part remainder reverse round
-sin sqrt string string? string<? string<=? string=? string>? string>=? string->list
-string->number string->utf8 string-append string-ci<? string-ci<=? string-ci=?
-string-ci>? string-ci>=? string-copy string-downcase string-foldcase string-for-each
-string-length string-ref string-upcase substring symbol? symbol=? symbol->string tan
-truncate unless unquote unquote-splicing utf8->string values when with-exception-handler
+* + - / < <= = => > >= abs acos and angle append apply asin assoc assq
+assv atan begin boolean=? boolean? bytevector bytevector-copy bytevector-length
+bytevector-u8-ref bytevector? caaaar caaadr caaar caadar caaddr caadr caar
+cadaar cadadr cadar caddar cadddr caddr cadr call-with-current-continuation
+call-with-values call/cc car case case-lambda cdaaar cdaadr cdaar cdadar
+cdaddr cdadr cdar cddaar cddadr cddar cdddar cddddr cdddr cddr cdr ceiling
+char->integer char-alphabetic? char-ci<=? char-ci<? char-ci=? char-ci>=?
+char-ci>? char-downcase char-foldcase char-lower-case? char-numeric? char-upcase
+char-upper-case? char-whitespace? char<=? char<? char=? char>=? char>? char?
+complex? cond cons cos define denominator do dynamic-wind else eof-object
+eof-object? eq? equal? eqv? error even? exact exact-integer-sqrt exact? exp
+expt finite? floor for-each gcd guard if imag-part inexact inexact? infinite?
+integer->char integer? lambda lcm length let let* let*-values let-values letrec
+letrec* list list->string list-copy list-ref list-tail list? log magnitude
+make-bytevector make-list make-parameter make-polar make-rectangular make-string
+map max member memq memv min modulo nan? negative? not null? number->string number?
+numerator odd? or pair? parameterize positive? procedure? quasiquote quote quotient
+raise raise-continuable rational? rationalize real-part real? remainder reverse round
+sin sqrt string string->list string->number string->utf8 string-append string-ci<=?
+string-ci<? string-ci=? string-ci>=? string-ci>? string-copy string-downcase
+string-foldcase string-for-each string-length string-ref string-upcase string<=?
+string<? string=? string>=? string>? string? substring symbol->string symbol=?
+symbol? tan truncate unless unquote unquote-splicing utf8->string values when
+with-exception-handler
 zero?
 ```
 
-Also the following procedure helps with html forms:
+### Forms
+
+The procedure `www-form-urlencoded-read` helps html query string, and
+forms:
 
 ```scheme
-www-form-urlencoded-read
+(assert (equal? (www-form-urlencoded-read "example=foo&example=bar&qux&baz=baz")
+                '((example . "foo")
+                  (example . "bar")
+                  (qux)
+                  (baz "baz"))))
 ```
 
-The following procedures helps with database:
+### Database
+
+#### `(call-with-transaction proc)`
+
+Start a transaction and pass it to `PROC`. A transaction object is
+noted `tx`.
+
+#### `(db-set! tx key value)`
+
+Associated `KEY` with `VALUE`. Override existing association if any.
+
+#### `(db-bytes tx key other)`
+
+Return the approximate count of bytes between keys `KEY` and `OTHER`.
+
+#### `(db-clear! tx key other)`
+
+Delete key-value associations between keys `KEY` and `OTHER`.
+
+#### `(db-query tx key other)`
+
+Return an association list made of the ordered keys between `KEY` and
+`OTHER`. `OTHER` is never part of the returned list.
+
+### Byter
 
 ```scheme
-call-with-transaction
-db-set!
-db-bytes
-db-clear!
-db-query
+(assert (equal? object (byter-unpack (byter-pack object))))
 ```
 
-The following procedures will pack basic Scheme objects into bytes
-preserving the natural order:
+#### `(byter-pack object)`
 
-```scheme
-byter-pack
-byter-unpack
-```
+Return a bytevector representation of `object`.
 
-Helpers to play with `bytevector` objects:
+#### `(byter-unpack bytevector)`
 
-```scheme
-byter-append
-byter-compare
-byter-next-prefix
-subbytes
-```
+Parse `BYTEVECTOR`.
+
+#### `(byter-append . bvs)`
+
+Return a bytevector made of `BVS`.
+
+#### `(byter-compare bytevector other)`
+
+Return a symbol describing the position of `BYTEVECTOR`, compared to
+`OTHER`:
+
+- `'smaller` then `BYTEVECTOR` is smaller than `OTHER` (aka. before)
+
+- `'equal` then `BYTEVECTOR` is equal to `OTHER`
+
+- `'bigger` then `BYTEVECTOR` is bigger than `OTHER` (aka. after)
+
+#### `(byter-next-prefix bytevector)`
+
+Return the first bytevector bigger than `BYTEVECTOR` that is not
+prefix of `BYTEVECTOR`.
