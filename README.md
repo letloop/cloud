@@ -22,7 +22,7 @@ You will need `curl`, and `jq`:
               "Ok"
               '((content-type . "text/plain"))
               "Héllo world!"))))
-;; EOF
+EOF
 ```
 
 To deploy use the following:
