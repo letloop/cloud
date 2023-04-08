@@ -38,6 +38,10 @@ to update the page. You can use it like that:
 ;> curl -X POST --data-binary @example.scm $(cat letloop.cloud.json | jq -r '.[2]')
 ```
 
+They are more examples in
+[letloop.cloud/examples/](https://github.com/letloop/letloop.cloud/tree/main/examples/)
+directory.
+
 Enjoy!
 
 ## Using `letloop.py`
